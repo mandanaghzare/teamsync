@@ -58,3 +58,47 @@ export const createTeam = async (req: AuthenticatedRequest, res: Response) => {
     });
   }
 };
+
+export const joinTeam = async(req: AuthenticatedRequest, res: Response) => {
+  try{
+    const {inviteCode} = req.body;
+    const userId = req.user?.userId;
+
+    if(!userId) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      })
+    }
+
+    const team = await prisma.team.findUnique({
+      where: {
+        inviteCode,
+      },
+    })
+    if(!team) {
+      return res.status(404).json({
+        message: "Team Not Found!",
+      })
+    }
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId: team.id
+        }
+      },
+    })
+    if(!existingMember) {
+      return res.status(409).json({
+        message: "You are already a member of this team",
+
+      })
+    }
+  } catch (error){
+    console.error("JOIN_TEAM_ERROR:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    })
+  }
+}
