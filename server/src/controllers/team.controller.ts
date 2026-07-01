@@ -80,6 +80,7 @@ export const joinTeam = async(req: AuthenticatedRequest, res: Response) => {
         message: "Team Not Found!",
       })
     }
+
     const existingMember = await prisma.teamMember.findUnique({
       where: {
         userId_teamId: {
@@ -88,17 +89,59 @@ export const joinTeam = async(req: AuthenticatedRequest, res: Response) => {
         }
       },
     })
-    if(!existingMember) {
+    if(existingMember) {
       return res.status(409).json({
         message: "You are already a member of this team",
 
       })
     }
+    const membership = await prisma.teamMember.create({
+      data: {
+        userId,
+        teamId: team.id,
+        role: "MEMBER"
+      },
+      include: {
+        team: true,
+      }
+    })
+    return res.status(201).json({
+      message: "Joined team successfully",
+      membership,
+    })
   } catch (error){
     console.error("JOIN_TEAM_ERROR:", error);
 
     return res.status(500).json({
       message: "Internal server error",
+    })
+  }
+}
+
+export const getMyTeam = async (req: AuthenticatedRequest, res: Response) => {
+  try{
+    const userId = req.user?.userId;
+    if(!userId) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      })
+    }
+    const membership = await prisma.teamMember.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        team: true
+      },
+    })
+    return res.status(200).json({
+      teams: membership,
+    })
+  } catch (error) {
+    console.error("GET_MY_TEAMS_ERROR:", error)
+    
+    return res.status(500).json({
+      message: "Internal server error"
     })
   }
 }
