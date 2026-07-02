@@ -95,6 +95,7 @@ export const joinTeam = async(req: AuthenticatedRequest, res: Response) => {
 
       })
     }
+
     const membership = await prisma.teamMember.create({
       data: {
         userId,
@@ -144,4 +145,42 @@ export const getMyTeam = async (req: AuthenticatedRequest, res: Response) => {
       message: "Internal server error"
     })
   }
+}
+
+export const createProject = async (req: AuthenticatedRequest, res: Response) => {
+  const {name, description, teamId} = req.body;
+  const userId = req.user?.userId;
+
+  if(!userId) {
+    return res.status(401).json({
+      message: "Unauthorized",
+    })
+  }
+console.log("USER:", userId);
+console.log("TEAM:", teamId);
+  const existingMember = await prisma.teamMember.findUnique({
+    where: {
+      userId_teamId: {
+        userId,
+        teamId,
+      }
+    }
+  })
+  console.log("MEMBER:", existingMember);
+  if(!existingMember) {
+    return res.status(403).json({
+      message: "You are not a member of this team",
+    })
+  }
+  const project = await prisma.project.create({
+    data: {
+      name,
+      description,
+      teamId
+    },
+  });
+  return res.status(200).json({
+    message: "Project created successfully",
+    project
+  })
 }

@@ -33,6 +33,7 @@ model Team {
   updatedAt  DateTime     @updatedAt
 
   members    TeamMember[]
+  projects Project[]
 }
 
 model TeamMember {
@@ -47,4 +48,15 @@ model TeamMember {
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([userId, teamId])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teamId String
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 }
