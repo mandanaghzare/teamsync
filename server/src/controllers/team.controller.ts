@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { response, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
@@ -183,4 +183,42 @@ console.log("TEAM:", teamId);
     message: "Project created successfully",
     project
   })
+}
+
+export const getProjectsByTeam = async (req: AuthenticatedRequest, res: Response) => {
+  try{
+    const teamId = req.params.teamId as string;
+    const userId = req.user?.userId
+    if(!userId) {
+      return res.status(403).json({
+        message: "Unauthorized"
+      })
+    }
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId
+        }
+      }
+    })
+    if(!existingMember) {
+      return res.status(403).json({
+        message: "You are not a member of this team"
+      })
+    }
+    const projects = await prisma.project.findMany({
+      where: {
+        teamId
+      }
+    })
+    return res.status(200).json({
+      projects,
+    })
+  } catch (error){
+    console.error("GET_PROJECTS_BY_TEAM_ERROR:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+    })
+  }
 }
