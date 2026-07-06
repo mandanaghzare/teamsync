@@ -2,6 +2,7 @@ import { response, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
+import { title } from "node:process";
 
 const createTeamSchema = z.object({
   name: z.string().min(2, "Team name must be at least 2 characters"),
@@ -222,3 +223,229 @@ export const getProjectsByTeam = async (req: AuthenticatedRequest, res: Response
     })
   }
 }
+
+export const getProjectById = async (req: AuthenticatedRequest ,res: Response) => {
+  try{
+      const projectId = req.params.projectId as string
+      const userId = req.user?.userId as string
+      if(!userId) {
+        res.status(401).json({
+          message: "Unauthorized"
+        })
+      }
+      const project = await prisma.project.findUnique({
+        where: {
+          id: projectId
+        }
+      })
+      if(!project) {
+        return res.status(404).json({
+          message: "Project not found",
+        });
+      }
+      const existingMember = await prisma.teamMember.findUnique({
+        where: {
+          userId_teamId: {
+            userId,
+            teamId: project.teamId
+          }
+        }
+      })
+      if(!existingMember) {
+        return res.status(403).json({
+          message: "You are not a member of this team"
+        })
+      }
+      return res.status(200).json({
+        project,
+      })
+  } catch (error) {
+    console.error("GET_PROJECT_BY_ID_ERROR", error)
+
+    return res.status(500).json({
+      message: "Internal server error",
+    })
+  }
+}
+
+export const projectUpdate = async (req:AuthenticatedRequest ,res: Response) => {
+  try{
+    const projectId = req.params.projectId as string;
+    const userId = req.user?.userId;
+      const { name, description } = req.body;
+    if(!userId) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      })
+    }
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId
+      }
+    })
+    if(!project) {
+      return res.status(404).json({
+        message: "Project not found",
+      })
+    }
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId: project.teamId
+        }
+      }
+    })
+    if(!existingMember) {
+      return res.status(403).json ({
+        message: "You are not a member of this team"
+      }) 
+    }
+    const updatedProject = await prisma.project.update({
+      where: {
+        id: projectId
+      },
+      data: {
+        ...(name && {name}),
+        ...(description && {description}),
+      }
+    })
+    return res.status(200).json({
+      message: "Project updated successfully",
+      project: projectUpdate
+    })
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal server error",
+    })
+  }
+}
+
+export const deleteProject = async (req: AuthenticatedRequest, res: Response) => {
+  try{
+    const userId = req.user?.userId;
+    const projectId = req.params.projectId as string
+    
+    if(!userId) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      })
+    }
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId
+      }
+    })
+    if(!project) {
+      return res.status(404).json({
+        message: "Project not found!"
+      })
+    }
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId: project.teamId
+        }
+      }
+    })
+    if(!existingMember) {
+      return res.status(403).json({
+        message: "You are not a member of this team"
+      })
+    }
+    const projectDelete = await prisma.project.delete({
+      where: {
+        id: projectId
+      }
+    })
+    return res.status(200).json({
+      message: "Project deleted successfully!"
+    })
+  } catch (error) {
+    console.error("DELETE_PROJECT_ERROR", error)
+    return res.status(500).json({
+      message: "Internal server error",
+    })
+  }
+}
+
+export const createTask = async (req: AuthenticatedRequest, res: Response) => {
+  try{
+    const userId = req.user?.userId;
+    const {
+      title,
+      description,
+      projectId,
+      priority,
+      status,
+      dueDate,
+      assigneeId,
+    } = req.body;
+    if(!userId) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      })
+    }
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId
+      }
+    })
+    if(!project) {
+      return res.status(404).json({
+        message: "Project not found"
+      })
+    }
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId: project.teamId
+        }
+      }
+    })
+    if(!existingMember) {
+      return res.status(403).json({
+        message: "You are not a member of this team"
+      })
+    }
+    if(assigneeId) {
+      const existingAssignee = await prisma.teamMember.findUnique({
+        where: {
+          userId_teamId: {
+            userId: assigneeId,
+            teamId: project.teamId
+          }
+        }
+      })
+      if(!existingAssignee) {
+        return res.status(400).json({
+          message: "Assignee is not a member of this team",
+        })
+      }
+    }
+    const task = await prisma.task.create({
+      data: {
+        title,
+        description,
+        projectId,
+        priority,
+        status,
+        dueDate: dueDate ? new Date(dueDate) : undefined,
+        assigneeId: assigneeId || undefined,
+      },
+    });
+    return res.status(201).json({
+      message: "Task successfully created",
+      project: createTask
+    })
+  } catch (error) {
+    console.error("CREATE_TASK_ERROR:", error);
+
+    return res.status(500).json({
+      message: "Internal server error"
+    })
+  }
+}
+
