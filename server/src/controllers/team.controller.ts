@@ -449,3 +449,51 @@ export const createTask = async (req: AuthenticatedRequest, res: Response) => {
   }
 }
 
+export const getTasksByProject = async (req: AuthenticatedRequest, res: Response) => {
+  try{
+    const userId = req.user?.userId;
+    const projectId = req.params.projectId as string
+    if(!userId) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      })
+    }
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId
+      }
+    })
+    if(!project) {
+      return res.status(404).json({
+        message: "Project not found"
+      })
+    }
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId: project.teamId
+        }
+      }
+    })
+    if(!existingMember) {
+      return res.status(403).json({
+        message: "You are not a member of this team"
+      })
+    }
+    const tasks = await prisma.task.findMany({
+      where: {
+        projectId,
+      }
+    })
+    return res.status(200).json({
+      tasks
+    })
+  } catch (error) {
+    console.error("GET_TASKS_BY_PROJECT_ERROR:", error);
+
+    return res.status(500).json({
+      message: "Internal server error"
+    })
+  }
+}
