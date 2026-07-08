@@ -611,3 +611,130 @@ export const deleteTask = async (req: AuthenticatedRequest, res: Response) => {
     })
   }
 }
+
+export const assignTask = async (req: AuthenticatedRequest, res: Response) => {
+  try{
+    const userId = req.user?.userId
+    const taskId = req.params.taskId as string
+    if(!userId) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      })
+    }
+    const task = await prisma.task.findUnique({
+      where: {
+        id: taskId
+      }
+    })
+    if(!task) {
+      return res.status(404).json({
+        message: "No task found"
+      })
+    }
+    const project = await prisma.project.findUnique({
+      where: {
+        id: task.projectId
+      }
+    })
+    if(!project) {
+      return res.status(404).json({
+        message: "Project not found"
+      })
+    }
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId: project.teamId
+        }
+      }
+    })
+    if(!existingMember) {
+      return res.status(403).json({
+        message: "You are not a member of this team"
+      })
+    }
+    const updatedTask  = await prisma.task.update({
+      where: {
+        id: taskId
+      }, data: {
+        assigneeId: userId
+      },
+    })
+    if(!updatedTask ) {
+      return res.status(403).json({
+        message: "You are not a member of this team"
+      })
+    }
+    return res.status(200).json({
+      message: "Task assigned successfully",
+      updatedTask 
+    })
+  } catch (error) {
+    console.error("UPDATE_TASK_ERROR:", error);
+
+    return res.status(500).json({
+      message: "Internal server error"
+    })
+  }
+}
+
+export const getSingleTask = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    const taskId = req.params.taskId as string;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!task) {
+      return res.status(404).json({
+        message: "No task found",
+      });
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: task.projectId },
+    });
+
+    if (!project) {
+      return res.status(404).json({
+        message: "Project not found",
+      });
+    }
+
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId: project.teamId,
+        },
+      },
+    });
+
+    if (!existingMember) {
+      return res.status(403).json({
+        message: "You are not a member of this team",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Task found successfully",
+      task,
+    });
+  } catch (error) {
+    console.error("GET_SINGLE_TASK_ERROR:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+  
