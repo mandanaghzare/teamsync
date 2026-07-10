@@ -21,6 +21,92 @@ export const swaggerSpec = swaggerJSDoc({
           bearerFormat: "JWT",
         },
       },
+
+      schemas: {
+        RegisterRequest: {
+          type: "object",
+          required: ["name", "email", "password"],
+          properties: {
+            name: {
+              type: "string",
+            },
+            email: {
+              type: "string",
+              format: "email",
+            },
+            password: {
+              type: "string",
+              format: "password",
+            },
+          },
+        },
+
+        LoginRequest: {
+          type: "object",
+          required: ["email", "password"],
+          properties: {
+            email: {
+              type: "string",
+              format: "email",
+            },
+            password: {
+              type: "string",
+              format: "password",
+            },
+          },
+        },
+
+        Team: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+            },
+            name: {
+              type: "string",
+            },
+            inviteCode: {
+              type: "string",
+            },
+          },
+        },
+
+        Project: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+            },
+            name: {
+              type: "string",
+            },
+            description: {
+              type: "string",
+            },
+          },
+        },
+
+        Task: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+            },
+            title: {
+              type: "string",
+            },
+            description: {
+              type: "string",
+            },
+            priority: {
+              type: "string",
+            },
+            status: {
+              type: "string",
+            },
+          },
+        },
+      },
     },
   },
   apis: ["./src/routes/*.ts"],
