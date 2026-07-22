@@ -33,7 +33,7 @@ const recentProjects = [
 
 export default function RecentProjects() {
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Recent Projects</CardTitle>
       </CardHeader>

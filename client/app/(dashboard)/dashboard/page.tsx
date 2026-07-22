@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import RecentProjects from "@/components/dashboard/RecentProjects";
+import MyTasks from "@/components/dashboard/MyTasks";
 
 const stats = [
   {
@@ -42,8 +43,7 @@ const stats = [
 
 export default function DashboardPage() {
   return (
-    <section className="space-y-6">
-
+    <section className="w-full space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -68,9 +68,11 @@ export default function DashboardPage() {
             </Card>
           );
         })}
-        <div className="max-w-3xl">
-          <RecentProjects />
-        </div>
+      </div>
+
+      <div className="grid w-full gap-6 lg:grid-cols-2">
+        <RecentProjects />
+        <MyTasks />
       </div>
     </section>
   );
