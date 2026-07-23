@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import RecentProjects from "@/components/dashboard/RecentProjects";
 import MyTasks from "@/components/dashboard/MyTasks";
+import ProjectsTable from "@/components/projects/ProjectsTable";
 
 const stats = [
   {

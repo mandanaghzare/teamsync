@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import ProjectsTable from "@/components/projects/ProjectsTable";
 
 export default function ProjectsPage() {
   return (
@@ -18,6 +19,7 @@ export default function ProjectsPage() {
           New Project
         </Button>
       </div>
+      <ProjectsTable /> 
     </section>
   );
 }

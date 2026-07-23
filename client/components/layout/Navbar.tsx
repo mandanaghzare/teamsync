@@ -1,15 +1,29 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+
 import { Button } from "@/components/ui/button";
 
+const emptySubscribe = () => {
+  return () => {};
+};
+
 export default function Navbar() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
   return (
     <header className="flex h-16 items-center justify-between border-b bg-background px-6">
       <div>
         <h1 className="text-xl font-bold">Dashboard</h1>
+
         <p className="text-sm text-muted-foreground">
           Welcome back 👋
         </p>
@@ -17,29 +31,24 @@ export default function Navbar() {
 
       <div className="flex items-center gap-4">
         <Button
-          variant="outline"
+          type="button"
+          variant="ghost"
           size="icon"
           onClick={() =>
-            setTheme(theme === "dark" ? "light" : "dark")
+            setTheme(resolvedTheme === "dark" ? "light" : "dark")
           }
+          aria-label="Toggle theme"
         >
-          {theme === "dark" ? (
-            <Sun className="h-5 w-5" />
+          {mounted ? (
+            resolvedTheme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )
           ) : (
-            <Moon className="h-5 w-5" />
+            <span className="block h-5 w-5" />
           )}
         </Button>
-
-        <div className="text-right">
-          <p className="text-sm font-semibold">Mandana</p>
-          <p className="text-xs text-muted-foreground">
-            Frontend Developer
-          </p>
-        </div>
-
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
-          M
-        </div>
       </div>
     </header>
   );

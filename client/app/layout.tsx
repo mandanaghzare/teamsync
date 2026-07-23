@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { Toaster } from "sonner";
+import ProjectsTable from "@/components/projects/ProjectsTable";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
