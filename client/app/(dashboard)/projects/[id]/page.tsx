@@ -1,3 +1,5 @@
+import { ProjectInfo } from "@/components/projects/ProjectInfo"
+import { projects } from "@/data/projects"
 type Props = {
   params: Promise<{
     id: string
@@ -5,15 +7,42 @@ type Props = {
 }
 
 export default async function ProjectDetailsPage({ params }: Props) {
-  const { id } = await params
+    const { id } = await params
+    const project = projects.find(
+        (project) => project.id === Number(id)
+    )
+    if (!project) {
+        return <div>Project not found.</div>
+    }
+    return (
+        <div className="space-y-6">
+            <h1 className="text-3xl font-bold">
+                Projects / {project.name}
+            </h1>
 
-  return (
-    <div className="space-y-4">
-      <h1 className="text-3xl font-bold">Project Details</h1>
+            <div className="space-y-2">
+            <div className="grid gap-4 md:grid-cols-2">
+                <ProjectInfo
+                    label="Team"
+                    value={project.team}
+                />
 
-      <p className="text-muted-foreground">
-        Project ID: {id}
-      </p>
-    </div>
-  )
+                <ProjectInfo
+                    label="Status"
+                    value={project.status}
+                />
+
+                <ProjectInfo
+                    label="Progress"
+                    value={`${project.progress}%`}
+                />
+
+                <ProjectInfo
+                    label="Due Date"
+                    value={project.dueDate}
+                />
+            </div>
+            </div>
+        </div>
+        )
 }
