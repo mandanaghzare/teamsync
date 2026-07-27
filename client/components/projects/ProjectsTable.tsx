@@ -29,6 +29,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Link from "next/link";
+import { ProjectStatusBadge } from "./ProjectStatusBadge";
+import { ProjectProgress } from "./ProjectProgress";
 
 
 
@@ -46,48 +49,16 @@ const columns: ColumnDef<Project>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => {
-      const status = row.original.status;
-
-      const statusStyles = {
-        Active:
-          "bg-blue-500/10 text-blue-500 border-blue-500/20",
-        Review:
-          "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-        Completed:
-          "bg-green-500/10 text-green-500 border-green-500/20",
-      };
-
-      return (
-        <span
-          className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusStyles[status]}`}
-        >
-          {status}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <ProjectStatusBadge status={row.original.status} />
+    ),
   },
   {
-    accessorKey: "progress",
+  accessorKey: "progress",
     header: "Progress",
-    cell: ({ row }) => {
-      const progress = row.original.progress;
-
-      return (
-        <div className="flex w-40 items-center gap-3">
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          <span className="w-9 text-right text-sm text-muted-foreground">
-            {progress}%
-          </span>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <ProjectProgress value={row.original.progress} />
+    ),
   },
   {
     accessorKey: "dueDate",
@@ -118,7 +89,9 @@ const columns: ColumnDef<Project>[] = [
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
               <DropdownMenuItem
-                onClick={() => console.log("View project:", project)}
+                render={
+                  <Link href={`/projects/${row.original.id}`} />
+                }
               >
                 <Eye />
                 View

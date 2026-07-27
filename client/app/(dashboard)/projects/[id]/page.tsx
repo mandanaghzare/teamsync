@@ -1,5 +1,10 @@
 import { ProjectInfo } from "@/components/projects/ProjectInfo"
+import { ProjectProgress } from "@/components/projects/ProjectProgress"
+import { ProjectStatusBadge } from "@/components/projects/ProjectStatusBadge"
+import { Breadcrumbs } from "@/components/shared/Breadcrumbs"
 import { projects } from "@/data/projects"
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
 type Props = {
   params: Promise<{
     id: string
@@ -16,9 +21,32 @@ export default async function ProjectDetailsPage({ params }: Props) {
     }
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold">
-                Projects / {project.name}
-            </h1>
+            <Link
+                href="/projects"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Projects
+            </Link>
+            <Breadcrumbs
+                items={[
+                    {
+                    label: "Dashboard",
+                    href: "/",
+                    },
+                    {
+                    label: "Projects",
+                    href: "/projects",
+                    },
+                    {
+                    label: project.name,
+                    },
+                ]}
+                />
+
+                <h1 className="text-3xl font-bold">
+                    {project.name}
+                </h1>
 
             <div className="space-y-2">
             <div className="grid gap-4 md:grid-cols-2">
@@ -29,12 +57,18 @@ export default async function ProjectDetailsPage({ params }: Props) {
 
                 <ProjectInfo
                     label="Status"
-                    value={project.status}
-                />
+                    value={
+                        <ProjectStatusBadge
+                        status={project.status}
+                        />
+                    }
+                    />
 
                 <ProjectInfo
                     label="Progress"
-                    value={`${project.progress}%`}
+                    value={
+                        <ProjectProgress value={project.progress} />
+                    }
                 />
 
                 <ProjectInfo
