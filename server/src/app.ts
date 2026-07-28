@@ -5,6 +5,7 @@ import projectRoutes from "./routes/project.routes";
 import taskRoutes from "./routes/task.routes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
+import cors from "cors"
 
 const app = express();
 
@@ -15,6 +16,13 @@ app.get("/health", (_req, res) => {
     status: "ok",
   });
 });
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+)
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

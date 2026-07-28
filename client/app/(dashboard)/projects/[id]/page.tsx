@@ -14,7 +14,7 @@ type Props = {
 export default async function ProjectDetailsPage({ params }: Props) {
     const { id } = await params
     const project = projects.find(
-        (project) => project.id === Number(id)
+        (project) => project.id === id
     )
     if (!project) {
         return <div>Project not found.</div>

@@ -98,9 +98,11 @@ const columns: ColumnDef<Project>[] = [
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                onClick={() => console.log("Edit project:", project)}
+                render={
+                  <Link href={`/projects/${row.original.id}/edit`} />
+                }
               >
-                <Pencil />
+                <Pencil className="h-4 w-4" />
                 Edit
               </DropdownMenuItem>
             </DropdownMenuGroup>

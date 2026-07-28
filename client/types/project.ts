@@ -1,36 +1,17 @@
 export type Project = {
-  id: number
+  id: string
   name: string
+
+  // Backend fields
+  description: string
+  teamId: string
+
+  // UI fields
   team: string
   status: "Active" | "Review" | "Completed"
   progress: number
   dueDate: string
-}
 
-export const projects: Project[] = [
-  
-    {
-      id: 1,
-      name: "TeamSync Frontend",
-      team: "Core Team",
-      status: "Active",
-      progress: 42,
-      dueDate: "Jul 30",
-    },
-    {
-      id: 2,
-      name: "Backend API",
-      team: "Core Team",
-      status: "Review",
-      progress: 83,
-      dueDate: "Aug 10",
-    },
-    {
-      id: 3,
-      name: "Marketing Website",
-      team: "Design Team",
-      status: "Completed",
-      progress: 100,
-      dueDate: "Jul 18",
-    },
-  ];
+  createdAt?: string
+  updatedAt?: string
+}
