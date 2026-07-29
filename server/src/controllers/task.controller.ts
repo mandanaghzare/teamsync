@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { prisma } from "../config/prisma";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
+import { TaskStatus } from "../generated/prisma/client"
 
 export const createTask = async (req: AuthenticatedRequest, res: Response) => {
   try{
@@ -57,17 +58,28 @@ export const createTask = async (req: AuthenticatedRequest, res: Response) => {
         })
       }
     }
+    const lastTask = await prisma.task.findFirst({
+      where: {
+        projectId,
+        status,
+      },
+      orderBy: {
+        order: "desc",
+      },
+    })
     const task = await prisma.task.create({
       data: {
         title,
         description,
-        projectId,
-        priority,
         status,
+        priority,
         dueDate: dueDate ? new Date(dueDate) : undefined,
-        assigneeId: assigneeId || undefined,
+        projectId,
+        assigneeId,
+
+        order: (lastTask?.order ?? -1) + 1,
       },
-    });
+    })
     return res.status(201).json({
       message: "Task successfully created",
       task
@@ -116,7 +128,15 @@ export const getTasksByProject = async (req: AuthenticatedRequest, res: Response
     const tasks = await prisma.task.findMany({
       where: {
         projectId,
-      }
+      },
+      orderBy: [
+        {
+          status: "asc",
+        },
+        {
+          order: "asc",
+        },
+      ],
     })
     return res.status(200).json({
       tasks
@@ -400,3 +420,48 @@ export const getMyAssignedTasks = async (req: AuthenticatedRequest, res:Response
     });
   }
 };
+
+export const reorderTasks = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { tasks } = req.body as {
+      tasks: {
+        id: string
+        status: TaskStatus
+        order: number
+      }[]
+    }
+
+    if (!Array.isArray(tasks)) {
+      return res.status(400).json({
+        message: "Tasks must be an array",
+      })
+    }
+
+    await prisma.$transaction(
+      tasks.map((task) =>
+        prisma.task.update({
+          where: {
+            id: task.id,
+          },
+          data: {
+            status: task.status,
+            order: task.order,
+          },
+        })
+      )
+    )
+
+    return res.status(200).json({
+      message: "Tasks reordered successfully",
+    })
+  } catch (error) {
+    console.error("REORDER_TASKS_ERROR:", error)
+
+    return res.status(500).json({
+      message: "Internal server error",
+    })
+  }
+}

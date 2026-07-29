@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../middleware/auth.middleware";
-import { assignTask, createTask, deleteTask, getMyAssignedTasks, getSingleTask, getTasksByProject, updateTask } from "../controllers/task.controller";
+import { assignTask, createTask, deleteTask, getMyAssignedTasks, getSingleTask, getTasksByProject, updateTask, reorderTasks } from "../controllers/task.controller";
 
 const router = Router();
 
@@ -72,6 +72,87 @@ router.get("/project/:projectId", authenticate, getTasksByProject);
  *         description: Assigned tasks retrieved successfully
  */
 router.get("/assigned/me", authenticate, getMyAssignedTasks);
+/**
+ * @swagger
+ * /api/tasks/reorder:
+ *   patch:
+ *     summary: Reorder tasks
+ *     description: Update the status and order of multiple tasks after drag and drop.
+ *     tags:
+ *       - Tasks
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - tasks
+ *             properties:
+ *               tasks:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - id
+ *                     - status
+ *                     - order
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: cms6abt90000ckby24oc4ek
+ *                     status:
+ *                       type: string
+ *                       enum:
+ *                         - TODO
+ *                         - IN_PROGRESS
+ *                         - REVIEW
+ *                         - DONE
+ *                       example: IN_PROGRESS
+ *                     order:
+ *                       type: integer
+ *                       minimum: 0
+ *                       example: 1
+ *           example:
+ *             tasks:
+ *               - id: cms6abt90000ckby24oc4ek
+ *                 status: TODO
+ *                 order: 0
+ *               - id: cms6afusr0001ckbii0q9gr9
+ *                 status: IN_PROGRESS
+ *                 order: 0
+ *               - id: cms6al7t80002ckb2iguk7mc
+ *                 status: IN_PROGRESS
+ *                 order: 1
+ *     responses:
+ *       200:
+ *         description: Tasks reordered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Tasks reordered successfully
+ *       400:
+ *         description: Invalid request body
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Tasks must be an array
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.patch("/reorder", authenticate, reorderTasks)
 /**
  * @swagger
  * /api/tasks/{taskId}:

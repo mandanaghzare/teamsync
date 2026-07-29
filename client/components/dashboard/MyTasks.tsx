@@ -1,84 +1,79 @@
-import { Circle, Clock3 } from "lucide-react";
+import Link from "next/link"
+import { ArrowRight, ClipboardCheck } from "lucide-react"
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import type { DashboardTask } from "@/types/dashboard"
+import { cn } from "@/lib/utils"
 
-const tasks = [
-  {
-    id: "1",
-    title: "Finish dashboard layout",
-    project: "TeamSync Frontend",
-    priority: "HIGH",
-    dueDate: "Today",
-  },
-  {
-    id: "2",
-    title: "Review authentication flow",
-    project: "TeamSync Backend",
-    priority: "MEDIUM",
-    dueDate: "Tomorrow",
-  },
-  {
-    id: "3",
-    title: "Prepare team invitation UI",
-    project: "Team Management",
-    priority: "LOW",
-    dueDate: "Jul 24",
-  },
-];
+type MyTasksProps = {
+  tasks: DashboardTask[]
+}
 
-const priorityStyles = {
-  HIGH: "bg-destructive/10 text-destructive",
-  MEDIUM: "bg-yellow-500/10 text-yellow-500",
-  LOW: "bg-emerald-500/10 text-emerald-500",
-};
-
-export default function MyTasks() {
+export function MyTasks({ tasks }: MyTasksProps) {
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>My Tasks</CardTitle>
-      </CardHeader>
+    <section className="rounded-xl border bg-card p-5 shadow-sm">
+      <div className="mb-5 flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">My tasks</h2>
 
-      <CardContent className="space-y-4">
-        {tasks.map((task) => (
-          <div
-            key={task.id}
-            className="flex items-start justify-between gap-4 rounded-lg border p-4"
-          >
-            <div className="flex min-w-0 gap-3">
-              <Circle className="mt-1 size-4 shrink-0 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            Tasks currently assigned to you.
+          </p>
+        </div>
 
+        <Link
+          href="/tasks"
+          className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
+        >
+          View board
+          <ArrowRight className="size-4" />
+        </Link>
+      </div>
+
+      {tasks.length === 0 ? (
+        <div className="flex min-h-40 flex-col items-center justify-center rounded-lg border border-dashed text-center">
+          <ClipboardCheck className="mb-3 size-8 text-muted-foreground" />
+
+          <p className="font-medium">No assigned tasks</p>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            Tasks assigned to you will appear here.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {tasks.map((task) => (
+            <Link
+              key={task.id}
+              href={`/tasks/${task.id}`}
+              className="flex items-center justify-between gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/50"
+            >
               <div className="min-w-0">
-                <p className="truncate font-medium">{task.title}</p>
-
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {task.project}
+                <p className="truncate font-medium">
+                  {task.title}
                 </p>
 
-                <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                  <Clock3 className="size-3.5" />
-                  <span>{task.dueDate}</span>
-                </div>
+                <p className="mt-1 truncate text-sm text-muted-foreground">
+                  {task.project.name}
+                </p>
               </div>
-            </div>
 
-            <span
-              className={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
-                priorityStyles[
-                  task.priority as keyof typeof priorityStyles
-                ]
-              }`}
-            >
-              {task.priority}
-            </span>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
+              <span
+                className={cn(
+                  "shrink-0 rounded-full px-2 py-1 text-xs font-medium",
+                  task.priority === "HIGH" &&
+                    "bg-red-500/10 text-red-600 dark:text-red-400",
+                  task.priority === "MEDIUM" &&
+                    "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                  task.priority === "LOW" &&
+                    "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                )}
+              >
+                {task.priority}
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
+  )
 }

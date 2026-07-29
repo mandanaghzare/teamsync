@@ -1,82 +1,78 @@
-import { FolderKanban } from "lucide-react";
+import Link from "next/link"
+import { ArrowRight, FolderKanban } from "lucide-react"
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import type { DashboardProject } from "@/types/dashboard"
 
-const recentProjects = [
-  {
-    id: "1",
-    name: "TeamSync Frontend",
-    team: "Core Team",
-    tasksCount: 12,
-    completedTasksCount: 5,
-  },
-  {
-    id: "2",
-    name: "Mobile Application",
-    team: "Product Team",
-    tasksCount: 18,
-    completedTasksCount: 11,
-  },
-  {
-    id: "3",
-    name: "Marketing Website",
-    team: "Design Team",
-    tasksCount: 8,
-    completedTasksCount: 6,
-  },
-];
+type RecentProjectsProps = {
+  projects: DashboardProject[]
+}
 
-export default function RecentProjects() {
+export function RecentProjects({
+  projects,
+}: RecentProjectsProps) {
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Recent Projects</CardTitle>
-      </CardHeader>
+    <section className="rounded-xl border bg-card p-5 shadow-sm">
+      <div className="mb-5 flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">
+            Recent projects
+          </h2>
 
-      <CardContent className="space-y-4">
-        {recentProjects.map((project) => {
-          const progress =
-            project.tasksCount === 0
-              ? 0
-              : Math.round(
-                  (project.completedTasksCount / project.tasksCount) * 100,
-                );
+          <p className="text-sm text-muted-foreground">
+            Your latest team projects.
+          </p>
+        </div>
 
-          return (
-            <div
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
+        >
+          View all
+          <ArrowRight className="size-4" />
+        </Link>
+      </div>
+
+      {projects.length === 0 ? (
+        <div className="flex min-h-40 flex-col items-center justify-center rounded-lg border border-dashed text-center">
+          <FolderKanban className="mb-3 size-8 text-muted-foreground" />
+
+          <p className="font-medium">No projects yet</p>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create your first project to see it here.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {projects.map((project) => (
+            <Link
               key={project.id}
-              className="flex items-center justify-between rounded-lg border p-4 w-full"
+              href={`/projects/${project.id}`}
+              className="block rounded-lg border p-4 transition-colors hover:bg-muted/50"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
-                  <FolderKanban className="size-5 text-muted-foreground" />
-                </div>
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <h3 className="truncate font-medium">
+                    {project.name}
+                  </h3>
 
-                <div>
-                  <p className="font-medium">{project.name}</p>
-
-                  <p className="text-sm text-muted-foreground">
-                    {project.team}
+                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                    {project.description || "No description"}
                   </p>
                 </div>
+
+                <span className="shrink-0 rounded-full bg-muted px-2 py-1 text-xs">
+                  {project._count.tasks} tasks
+                </span>
               </div>
 
-              <div className="text-right">
-                <p className="text-sm font-medium">{progress}%</p>
-
-                <p className="text-xs text-muted-foreground">
-                  {project.completedTasksCount}/{project.tasksCount} tasks
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </CardContent>
-    </Card>
-  );
+              <p className="mt-3 text-xs text-muted-foreground">
+                {project.team.name}
+              </p>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
+  )
 }

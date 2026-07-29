@@ -146,3 +146,59 @@ export const getMyTeam = async (req: AuthenticatedRequest, res: Response) => {
     })
   }
 }
+
+export const getTeamMembers = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const userId = req.user?.userId
+    const teamId = String(req.params.teamId)
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      })
+    }
+
+    const membership = await prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId,
+        },
+      },
+    })
+
+    if (!membership) {
+      return res.status(403).json({
+        message: "You are not a member of this team",
+      })
+    }
+
+    const members = await prisma.teamMember.findMany({
+      where: {
+        teamId,
+      },
+      select: {
+        id: true,
+        role: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    })
+
+    return res.status(200).json(members)
+  } catch (error) {
+    console.error("GET_TEAM_MEMBERS_ERROR:", error)
+
+    return res.status(500).json({
+      message: "Failed to load team members",
+    })
+  }
+}
