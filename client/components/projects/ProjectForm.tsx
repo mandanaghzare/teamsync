@@ -3,9 +3,13 @@
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateProject } from "@/lib/project-service";
+import {
+  createProject,
+  updateProject,
+} from "@/lib/project-service"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -15,13 +19,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 
 import {
@@ -29,16 +26,20 @@ import {
   type ProjectFormValues,
 } from "@/lib/project-schema"
 import type { Project } from "@/types/project"
-import { toast } from "sonner";
 
 type ProjectFormProps = {
   project?: Project
+  defaultTeamId?: string
 }
 
-export function ProjectForm({ project }: ProjectFormProps) {
+export function ProjectForm({
+  project,
+  defaultTeamId,
+}: ProjectFormProps) {
   const router = useRouter()
-
   const queryClient = useQueryClient()
+
+  const isEditMode = Boolean(project)
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -46,33 +47,54 @@ export function ProjectForm({ project }: ProjectFormProps) {
     defaultValues: {
         name: project?.name ?? "",
         description: project?.description ?? "",
-        teamId: project?.teamId ?? "",
+        teamId: project?.teamId ?? defaultTeamId ?? "",
     },
   })
 
-    const mutation = useMutation({
-        mutationFn: (data: ProjectFormValues) =>
-            updateProject(project!.id, data),
+  const mutation = useMutation({
+    mutationFn: (data: ProjectFormValues) => {
+      if (project) {
+        return updateProject(project.id, data)
+      }
 
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({
-            queryKey: ["projects"],
-            })
+      return createProject(data)
+    },
 
-            toast.success("Project updated successfully")
+    onSuccess: async (response) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["projects"],
+      })
 
-            router.push(`/projects/${project!.id}`)
-            router.refresh()
-        },
+      toast.success(
+        isEditMode
+          ? "Project updated successfully"
+          : "Project created successfully"
+      )
 
-        onError: () => {
-            toast.error("Failed to update project")
-        },
-    })
+      const projectId =
+        response?.project?.id ?? project?.id
 
-    function onSubmit(data: ProjectFormValues) {
-        mutation.mutate(data)
-    }
+      if (projectId) {
+        router.push(`/projects/${projectId}`)
+      } else {
+        router.push("/projects")
+      }
+
+      router.refresh()
+    },
+
+    onError: () => {
+      toast.error(
+        isEditMode
+          ? "Failed to update project"
+          : "Failed to create project"
+      )
+    },
+  })
+
+  function onSubmit(data: ProjectFormValues) {
+    mutation.mutate(data)
+  }
 
   return (
     <form
@@ -82,97 +104,111 @@ export function ProjectForm({ project }: ProjectFormProps) {
     >
       <FieldGroup>
         <Controller
-            name="name"
-            control={form.control}
-            render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>
-                    Project name
-                </FieldLabel>
+          name="name"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>
+                Project name
+              </FieldLabel>
 
-                <Input
-                    {...field}
-                    id={field.name}
-                    placeholder="Enter project name"
-                    aria-invalid={fieldState.invalid}
+              <Input
+                {...field}
+                id={field.name}
+                placeholder="Enter project name"
+                aria-invalid={fieldState.invalid}
+              />
+
+              {fieldState.invalid && (
+                <FieldError
+                  errors={[fieldState.error]}
                 />
-
-                {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                )}
-                </Field>
-            )}
+              )}
+            </Field>
+          )}
         />
 
         <Controller
-            name="description"
-            control={form.control}
-            render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>
-                    Description
-                </FieldLabel>
+          name="description"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>
+                Description
+              </FieldLabel>
 
-                <Textarea
-                    {...field}
-                    id={field.name}
-                    placeholder="Write a short project description"
-                    className="min-h-24"
-                    aria-invalid={fieldState.invalid}
+              <Textarea
+                {...field}
+                id={field.name}
+                placeholder="Write a short project description"
+                className="min-h-24"
+                aria-invalid={fieldState.invalid}
+              />
+
+              {fieldState.invalid && (
+                <FieldError
+                  errors={[fieldState.error]}
                 />
-
-                {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                )}
-                </Field>
-            )}
+              )}
+            </Field>
+          )}
         />
 
         <Controller
-            name="teamId"
-            control={form.control}
-            render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>
-                    Team ID
-                </FieldLabel>
+          name="teamId"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>
+                Team ID
+              </FieldLabel>
 
-                <Input
-                    {...field}
-                    id={field.name}
-                    placeholder="Enter team ID"
-                    aria-invalid={fieldState.invalid}
+              <Input
+                {...field}
+                id={field.name}
+                placeholder="Enter team ID"
+                aria-invalid={fieldState.invalid}
+              />
+
+              {fieldState.invalid && (
+                <FieldError
+                  errors={[fieldState.error]}
                 />
-
-                {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                )}
-                </Field>
-            )}
+              )}
+            </Field>
+          )}
         />
 
         <div className="flex justify-end gap-3">
-            <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                if (project) {
-                    router.push(`/projects/${project.id}`)
-                    return
-                }
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              if (project) {
+                router.push(
+                  `/projects/${project.id}`
+                )
+                return
+              }
 
-                router.push("/projects")
-                }}
-            >
-                Cancel
-            </Button>
+              router.push("/projects")
+            }}
+          >
+            Cancel
+          </Button>
 
-            <Button
-                type="submit"
-                disabled={mutation.isPending}
-                >
-                {mutation.isPending ? "Saving..." : "Save changes"}
-            </Button>
+          <Button
+            type="submit"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending
+              ? isEditMode
+                ? "Saving..."
+                : "Creating..."
+              : isEditMode
+                ? "Save changes"
+                : "Create project"}
+          </Button>
         </div>
       </FieldGroup>
     </form>

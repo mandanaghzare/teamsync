@@ -1,82 +1,112 @@
-import { ProjectInfo } from "@/components/projects/ProjectInfo"
-import { ProjectProgress } from "@/components/projects/ProjectProgress"
-import { ProjectStatusBadge } from "@/components/projects/ProjectStatusBadge"
-import { Breadcrumbs } from "@/components/shared/Breadcrumbs"
-import { projects } from "@/data/projects"
-import { ArrowLeft } from "lucide-react"
+"use client"
+
 import Link from "next/link"
-type Props = {
-  params: Promise<{
-    id: string
-  }>
-}
+import { useParams } from "next/navigation"
+import { ArrowLeft, Pencil } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 
-export default async function ProjectDetailsPage({ params }: Props) {
-    const { id } = await params
-    const project = projects.find(
-        (project) => project.id === id
-    )
-    if (!project) {
-        return <div>Project not found.</div>
-    }
+import { Button } from "@/components/ui/button"
+import { Breadcrumbs } from "@/components/shared/Breadcrumbs"
+import { ProjectInfo } from "@/components/projects/ProjectInfo"
+import { getProjectById } from "@/lib/project-service"
+
+export default function ProjectDetailsPage() {
+  const params = useParams<{ id: string }>()
+  const projectId = params.id
+
+  const {
+    data: project,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["project", projectId],
+    queryFn: () => getProjectById(projectId),
+    enabled: Boolean(projectId),
+  })
+
+  if (isLoading) {
     return (
-        <div className="space-y-6">
-            <Link
-                href="/projects"
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Projects
-            </Link>
-            <Breadcrumbs
-                items={[
-                    {
-                    label: "Dashboard",
-                    href: "/",
-                    },
-                    {
-                    label: "Projects",
-                    href: "/projects",
-                    },
-                    {
-                    label: project.name,
-                    },
-                ]}
-                />
+      <div className="flex h-40 items-center justify-center">
+        Loading...
+      </div>
+    )
+  }
 
-                <h1 className="text-3xl font-bold">
-                    {project.name}
-                </h1>
+  if (isError || !project) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        Project not found.
+      </div>
+    )
+  }
 
-            <div className="space-y-2">
-            <div className="grid gap-4 md:grid-cols-2">
-                <ProjectInfo
-                    label="Team"
-                    value={project.team}
-                />
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          Back to Projects
+        </Link>
 
-                <ProjectInfo
-                    label="Status"
-                    value={
-                        <ProjectStatusBadge
-                        status={project.status}
-                        />
-                    }
-                    />
+        <Button
+          nativeButton={false}
+          render={<Link href={`/projects/${project.id}/edit`} />}
+        >
+          <Pencil className="size-4" />
+          Edit project
+        </Button>
+      </div>
 
-                <ProjectInfo
-                    label="Progress"
-                    value={
-                        <ProjectProgress value={project.progress} />
-                    }
-                />
+      <div className="space-y-2">
+        <Breadcrumbs
+          items={[
+            {
+              label: "Dashboard",
+              href: "/",
+            },
+            {
+              label: "Projects",
+              href: "/projects",
+            },
+            {
+              label: project.name,
+            },
+          ]}
+        />
 
-                <ProjectInfo
-                    label="Due Date"
-                    value={project.dueDate}
-                />
-            </div>
-            </div>
-        </div>
-        )
+        <h1 className="text-3xl font-bold">
+          {project.name}
+        </h1>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <ProjectInfo
+          label="Description"
+          value={project.description}
+        />
+
+        <ProjectInfo
+          label="Team ID"
+          value={project.teamId}
+        />
+
+        <ProjectInfo
+          label="Created"
+          value={new Date(
+            project.createdAt
+          ).toLocaleDateString()}
+        />
+
+        <ProjectInfo
+          label="Last updated"
+          value={new Date(
+            project.updatedAt
+          ).toLocaleDateString()}
+        />
+      </div>
+    </div>
+  )
 }

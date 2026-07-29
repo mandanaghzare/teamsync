@@ -1,25 +1,42 @@
+"use client"
+
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs"
-import { projects } from "@/data/projects"
 import { ProjectForm } from "@/components/projects/ProjectForm"
+import { getProjectById } from "@/lib/project-service"
 
-type Props = {
-  params: Promise<{
-    id: string
-  }>
-}
+export default function EditProjectPage() {
+  const params = useParams<{ id: string }>()
+  const projectId = params.id
 
-export default async function EditProjectPage({ params }: Props) {
-  const { id } = await params
+  const {
+    data: project,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["project", projectId],
+    queryFn: () => getProjectById(projectId),
+    enabled: Boolean(projectId),
+  })
 
-  const project = projects.find(
-    (project) => project.id === id
-  )
+  if (isLoading) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        Loading...
+      </div>
+    )
+  }
 
-  if (!project) {
-    return <div>Project not found.</div>
+  if (isError || !project) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        Project not found.
+      </div>
+    )
   }
 
   return (
@@ -53,6 +70,7 @@ export default async function EditProjectPage({ params }: Props) {
           Update the project information.
         </p>
       </div>
+
       <ProjectForm project={project} />
     </div>
   )
