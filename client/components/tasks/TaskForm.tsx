@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -18,8 +19,14 @@ import {
   createTask,
   updateTask,
 } from "@/lib/task-service"
-import { getProjectById } from "@/lib/project-service"
-import { getTeamMembers } from "@/lib/team-service"
+import {
+  getProjectById,
+  getProjects,
+} from "@/lib/project-service"
+import {
+  getMyTeams,
+  getTeamMembers,
+} from "@/lib/team-service"
 import {
   taskSchema,
   type TaskFormValues,
@@ -42,6 +49,12 @@ type TaskFormProps = {
   defaultProjectId?: string
 }
 
+type ProjectOption = {
+  id: string
+  name: string
+  teamId: string
+}
+
 export function TaskForm({
   task,
   defaultProjectId,
@@ -50,6 +63,9 @@ export function TaskForm({
   const queryClient = useQueryClient()
 
   const isEditMode = Boolean(task)
+
+  const [selectedTeamId, setSelectedTeamId] =
+    useState("")
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -76,12 +92,45 @@ export function TaskForm({
   })
 
   const {
-    data: selectedProject,
-    isLoading: isProjectLoading,
+    data: teams = [],
+    isLoading: areTeamsLoading,
   } = useQuery({
-    queryKey: ["project", selectedProjectId],
-    queryFn: () => getProjectById(selectedProjectId),
-    enabled: Boolean(selectedProjectId),
+    queryKey: ["teams"],
+    queryFn: getMyTeams,
+  })
+
+  const {
+    data: currentProject,
+    isLoading: isCurrentProjectLoading,
+  } = useQuery({
+    queryKey: [
+      "project",
+      selectedProjectId,
+    ],
+    queryFn: () =>
+      getProjectById(selectedProjectId),
+    enabled: Boolean(
+      selectedProjectId &&
+      (isEditMode || defaultProjectId)
+    ),
+  })
+
+  const effectiveTeamId =
+    selectedTeamId ||
+    currentProject?.teamId ||
+    ""
+
+  const {
+    data: projects = [],
+    isLoading: areProjectsLoading,
+  } = useQuery<ProjectOption[]>({
+    queryKey: [
+      "projects",
+      effectiveTeamId,
+    ],
+    queryFn: () =>
+      getProjects(effectiveTeamId),
+    enabled: Boolean(effectiveTeamId),
   })
 
   const {
@@ -90,11 +139,14 @@ export function TaskForm({
   } = useQuery({
     queryKey: [
       "team-members",
-      selectedProject?.teamId,
+      effectiveTeamId,
     ],
     queryFn: () =>
-      getTeamMembers(selectedProject!.teamId),
-    enabled: Boolean(selectedProject?.teamId),
+      getTeamMembers(effectiveTeamId),
+    enabled: Boolean(
+      effectiveTeamId &&
+      selectedProjectId
+    ),
   })
 
   const mutation = useMutation({
@@ -106,7 +158,7 @@ export function TaskForm({
       return createTask(data)
     },
 
-    onSuccess: async () => {
+    onSuccess: async (_result, data) => {
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: ["tasks"],
@@ -122,7 +174,15 @@ export function TaskForm({
           : "Task created successfully"
       )
 
-      router.push("/tasks")
+      const destinationProjectId =
+        task?.projectId ?? data.projectId
+
+      router.push(
+        destinationProjectId
+          ? `/projects/${destinationProjectId}/tasks`
+          : "/projects"
+      )
+
       router.refresh()
     },
 
@@ -134,6 +194,30 @@ export function TaskForm({
       )
     },
   })
+
+  function handleTeamChange(teamId: string) {
+    setSelectedTeamId(teamId)
+
+    form.setValue("projectId", "", {
+      shouldValidate: true,
+    })
+
+    form.setValue("assigneeId", "", {
+      shouldValidate: true,
+    })
+  }
+
+  function handleProjectChange(projectId: string) {
+    form.setValue("projectId", projectId, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+
+    form.setValue("assigneeId", "", {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+  }
 
   function onSubmit(data: TaskFormValues) {
     mutation.mutate({
@@ -148,7 +232,7 @@ export function TaskForm({
   return (
     <form
       onSubmit={form.handleSubmit(onSubmit)}
-      className="max-w-2xl rounded-lg border p-6"
+      className="w-full rounded-xl border bg-card p-6 shadow-sm"
       noValidate
     >
       <FieldGroup>
@@ -302,21 +386,94 @@ export function TaskForm({
           )}
         />
 
+        <Field>
+          <FieldLabel htmlFor="teamId">
+            Team
+          </FieldLabel>
+
+          <select
+            id="teamId"
+            value={effectiveTeamId}
+            onChange={(event) =>
+              handleTeamChange(
+                event.target.value
+              )
+            }
+            disabled={
+              areTeamsLoading ||
+              isCurrentProjectLoading ||
+              isEditMode
+            }
+            className="h-9 w-full rounded-md border bg-background px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">
+              {areTeamsLoading
+                ? "Loading teams..."
+                : "Select a team"}
+            </option>
+
+            {teams.map((membership) => (
+              <option
+                key={membership.team.id}
+                value={membership.team.id}
+              >
+                {membership.team.name} (
+                {membership.role})
+              </option>
+            ))}
+          </select>
+        </Field>
+
         <Controller
           name="projectId"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>
-                Project ID
+                Project
               </FieldLabel>
 
-              <Input
-                {...field}
+              <select
                 id={field.name}
-                placeholder="Enter project ID"
+                value={field.value}
+                onChange={(event) =>
+                  handleProjectChange(
+                    event.target.value
+                  )
+                }
+                disabled={
+                  !effectiveTeamId ||
+                  areProjectsLoading
+                }
+                className="h-9 w-full rounded-md border bg-background px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
                 aria-invalid={fieldState.invalid}
-              />
+              >
+                <option value="">
+                  {!effectiveTeamId
+                    ? "Select a team first"
+                    : areProjectsLoading
+                      ? "Loading projects..."
+                      : "Select a project"}
+                </option>
+
+                {projects.map((project) => (
+                  <option
+                    key={project.id}
+                    value={project.id}
+                  >
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+
+              {effectiveTeamId &&
+                !areProjectsLoading &&
+                projects.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No projects were found for this
+                    team.
+                  </p>
+                )}
 
               {fieldState.invalid && (
                 <FieldError
@@ -339,20 +496,21 @@ export function TaskForm({
               <select
                 id={field.name}
                 value={field.value ?? ""}
-                onChange={(event) => {
-                  field.onChange(event.target.value)
-                }}
+                onChange={(event) =>
+                  field.onChange(
+                    event.target.value
+                  )
+                }
                 disabled={
                   !selectedProjectId ||
-                  isProjectLoading ||
                   areMembersLoading
                 }
                 className="h-9 w-full rounded-md border bg-background px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
                 aria-invalid={fieldState.invalid}
               >
                 <option value="">
-                  {isProjectLoading
-                    ? "Loading project..."
+                  {!selectedProjectId
+                    ? "Select a project first"
                     : areMembersLoading
                       ? "Loading members..."
                       : "Unassigned"}
@@ -363,18 +521,17 @@ export function TaskForm({
                     key={member.user.id}
                     value={member.user.id}
                   >
-                    {member.user.name} ({member.role})
+                    {member.user.name} (
+                    {member.role})
                   </option>
                 ))}
               </select>
 
               {selectedProjectId &&
-                !isProjectLoading &&
                 !areMembersLoading &&
                 members.length === 0 && (
                   <p className="text-sm text-muted-foreground">
-                    No members were found for this
-                    project&apos;s team.
+                    No team members were found.
                   </p>
                 )}
 
@@ -387,17 +544,21 @@ export function TaskForm({
           )}
         />
 
-        <div className="flex justify-end gap-3">
+        <div className="flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
           <Button
             type="button"
             variant="outline"
+            disabled={mutation.isPending}
             onClick={() => {
-              if (task) {
-                router.push(`/tasks/${task.id}`)
-                return
-              }
+              const projectId =
+                task?.projectId ??
+                form.getValues("projectId")
 
-              router.push("/tasks")
+              router.push(
+                projectId
+                  ? `/projects/${projectId}/tasks`
+                  : "/projects"
+              )
             }}
           >
             Cancel

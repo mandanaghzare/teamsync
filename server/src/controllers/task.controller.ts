@@ -129,6 +129,15 @@ export const getTasksByProject = async (req: AuthenticatedRequest, res: Response
       where: {
         projectId,
       },
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
       orderBy: [
         {
           status: "asc",
@@ -162,8 +171,17 @@ export const updateTask = async (req: AuthenticatedRequest, res: Response) => {
     }
     const task = await prisma.task.findUnique({
       where: {
-        id: taskId
-      }
+        id: taskId,
+      },
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
     })
     if (!task) {
       return res.status(404).json({

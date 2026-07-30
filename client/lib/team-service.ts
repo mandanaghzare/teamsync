@@ -1,4 +1,18 @@
-import axiosInstance from "./axios"
+import { api } from "./axios"
+
+export type Team = {
+  id: string
+  name: string
+  inviteCode: string
+}
+
+export type TeamMembership = {
+  id: string
+  role: "OWNER" | "MEMBER"
+  userId: string
+  teamId: string
+  team: Team
+}
 
 export type TeamMember = {
   id: string
@@ -10,9 +24,18 @@ export type TeamMember = {
   }
 }
 
-export const getTeamMembers = async (
+export async function getMyTeams(): Promise<TeamMembership[]> {
+  const { data } = await api.get("/teams")
+
+  return data.teams
+}
+
+export async function getTeamMembers(
   teamId: string
-): Promise<TeamMember[]> => {
-  const { data } = await axiosInstance.get(`/teams/${teamId}/members`)
+): Promise<TeamMember[]> {
+  const { data } = await api.get(
+    `/teams/${teamId}/members`
+  )
+
   return data
 }

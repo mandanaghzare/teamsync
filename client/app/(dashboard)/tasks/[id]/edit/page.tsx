@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs"
@@ -25,31 +25,33 @@ export default function EditTaskPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-40 items-center justify-center">
-        Loading...
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     )
   }
 
   if (isError || !task) {
     return (
-      <div className="flex h-40 items-center justify-center">
-        Task not found.
+      <div className="flex min-h-[400px] items-center justify-center">
+        <p className="text-sm text-muted-foreground">
+          Task not found.
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-3xl space-y-6">
       <Link
         href={`/tasks/${task.id}`}
         className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" />
-        Back to Task
+        Back to task
       </Link>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Breadcrumbs
           items={[
             {
@@ -70,13 +72,15 @@ export default function EditTaskPage() {
           ]}
         />
 
-        <h1 className="text-3xl font-bold">
-          Edit {task.title}
-        </h1>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Edit {task.title}
+          </h1>
 
-        <p className="text-muted-foreground">
-          Update the task information.
-        </p>
+          <p className="mt-2 text-muted-foreground">
+            Update the task information.
+          </p>
+        </div>
       </div>
 
       <TaskForm task={task} />
