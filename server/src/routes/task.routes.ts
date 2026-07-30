@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../middleware/auth.middleware";
-import { assignTask, createTask, deleteTask, getMyAssignedTasks, getSingleTask, getTasksByProject, updateTask, reorderTasks } from "../controllers/task.controller";
+import { assignTask, createTask, deleteTask, getMyAssignedTasks, getSingleTask, getTasksByProject, updateTask, reorderTasks, getAllTasks } from "../controllers/task.controller";
 
 const router = Router();
 
@@ -233,6 +233,68 @@ router.delete("/:taskId", authenticate, deleteTask);
  *         description: Task assigned successfully
  */
 router.patch("/:taskId/assign/:userId", authenticate, assignTask);
+/**
+ * @swagger
+ * /api/tasks:
+ *   get:
+ *     summary: Get all tasks for the authenticated user
+ *     tags:
+ *       - Tasks
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Tasks retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 tasks:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *                         example: TODO
+ *                       priority:
+ *                         type: string
+ *                         example: HIGH
+ *                       order:
+ *                         type: integer
+ *                       dueDate:
+ *                         type: string
+ *                         format: date-time
+ *                       assignee:
+ *                         type: object
+ *                         nullable: true
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           email:
+ *                             type: string
+ *                       project:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/", authenticate, getAllTasks);
 /**
  * @swagger
  * /api/tasks/{taskId}:

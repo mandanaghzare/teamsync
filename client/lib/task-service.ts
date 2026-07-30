@@ -75,3 +75,9 @@ export async function reorderTasks(
 
   return response.data
 }
+
+export async function getAllTasks() {
+  const { data } = await api.get("/tasks")
+
+  return data.tasks
+}

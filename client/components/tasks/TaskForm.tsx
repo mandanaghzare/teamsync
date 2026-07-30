@@ -159,14 +159,24 @@ export function TaskForm({
     },
 
     onSuccess: async (_result, data) => {
-      await Promise.all([
+      const queries = [
         queryClient.invalidateQueries({
           queryKey: ["tasks"],
         }),
         queryClient.invalidateQueries({
           queryKey: ["dashboard"],
         }),
-      ])
+      ]
+
+      if (task?.id) {
+        queries.push(
+          queryClient.invalidateQueries({
+            queryKey: ["task", task.id],
+          })
+        )
+      }
+
+      await Promise.all(queries)
 
       toast.success(
         task
@@ -175,7 +185,7 @@ export function TaskForm({
       )
 
       const destinationProjectId =
-        task?.projectId ?? data.projectId
+        data.projectId ?? task?.projectId
 
       router.push(
         destinationProjectId
