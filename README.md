@@ -1,6 +1,6 @@
 # 🚀 TeamSync
 
-A modern full-stack team collaboration and project management platform built with Next.js, Express, TypeScript, Prisma, PostgreSQL, React Query, and Docker.
+A modern full-stack team collaboration platform built with Next.js, Express, TypeScript, Prisma, PostgreSQL, React Query, and Docker.
 
 ---
 
@@ -20,11 +20,31 @@ https://github.com/mandanaghzare/teamsync
 
 # 📖 Overview
 
-TeamSync is a collaborative project management application inspired by modern productivity tools like Trello and Jira.
+TeamSync is a collaborative project management platform inspired by modern productivity tools like Trello and Jira.
 
-It allows teams to create workspaces, manage projects, organize tasks using a Kanban board, assign tasks to team members, and monitor project progress through an intuitive dashboard.
+It enables teams to create workspaces, manage projects, organize tasks using a Kanban board, assign tasks to team members, and track overall project progress through an intuitive dashboard.
 
-The project demonstrates a complete full-stack architecture with authentication, authorization, REST APIs, database management, Dockerized development, and a responsive modern UI.
+The project demonstrates a complete full-stack architecture featuring authentication, authorization, REST APIs, database management, Dockerized development, responsive UI, and modern frontend best practices.
+
+---
+
+# 📸 Screenshots
+
+### Dashboard
+
+![Dashboard](./client/public/screenshots/dashboard.png)
+
+### Projects
+
+![Projects](./client/public/screenshots/projects.png)
+
+### Kanban Board
+
+![Kanban](./client/public/screenshots/kanban.png)
+
+### Tasks
+
+![Tasks](./client/public/screenshots/tasks.png)
 
 ---
 
@@ -36,6 +56,7 @@ The project demonstrates a complete full-stack architecture with authentication,
 - Secure Login
 - JWT Authentication
 - Protected Routes
+- Logout
 - Update User Profile
 
 ---
@@ -54,7 +75,7 @@ The project demonstrates a complete full-stack architecture with authentication,
 - Create Projects
 - Edit Projects
 - Delete Projects
-- Project Progress
+- Project Progress Tracking
 - Project Status
 - Team-based Project Access
 
@@ -70,16 +91,19 @@ The project demonstrates a complete full-stack architecture with authentication,
 - Priority Levels
 - Task Status
 - Task Details Page
+- Global Tasks View
+- My Assigned Tasks
 
 ---
 
 ## 📋 Kanban Board
 
 - Drag & Drop Tasks
-- Move Between Columns
+- Move Tasks Between Columns
 - Automatic Order Saving
 - To Do
 - In Progress
+- Review
 - Done
 
 ---
@@ -90,13 +114,15 @@ The project demonstrates a complete full-stack architecture with authentication,
 - Project Statistics
 - Task Statistics
 - Upcoming Deadlines
-- Assigned Tasks
+- My Assigned Tasks
 
 ---
 
 ## 🔎 Search & Tables
 
+- Search Projects
 - Search Tasks
+- Global Tasks View
 - Sortable Tables
 - Responsive Data Tables
 
@@ -104,8 +130,8 @@ The project demonstrates a complete full-stack architecture with authentication,
 
 ## 🎨 User Experience
 
-- Dark / Light Mode
 - Responsive Design
+- Dark / Light Mode
 - Loading States
 - Empty States
 - Error Handling
@@ -118,7 +144,7 @@ The project demonstrates a complete full-stack architecture with authentication,
 ## 📚 API Documentation
 
 - Swagger UI
-- RESTful API
+- REST API
 - Request Validation
 - Authentication Middleware
 
@@ -132,6 +158,7 @@ The project demonstrates a complete full-stack architecture with authentication,
 - React 19
 - TypeScript
 - Tailwind CSS
+- Axios
 - TanStack React Query
 - TanStack Table
 - React Hook Form
@@ -154,7 +181,6 @@ The project demonstrates a complete full-stack architecture with authentication,
 - bcrypt
 - Zod
 - Swagger
-- Socket.io
 
 ---
 
@@ -166,6 +192,7 @@ The project demonstrates a complete full-stack architecture with authentication,
 - GitHub
 - Postman
 - Prisma Studio
+- Swagger UI
 
 ---
 
@@ -217,7 +244,7 @@ The project demonstrates a complete full-stack architecture with authentication,
 
 # 📁 Folder Structure
 
-```
+```text
 TeamSync
 │
 ├── client
@@ -225,17 +252,19 @@ TeamSync
 │   ├── components
 │   ├── lib
 │   ├── providers
-│   ├── types
-│   └── public
+│   ├── public
+│   └── types
 │
 ├── server
 │   ├── prisma
 │   ├── src
+│   │   ├── config
 │   │   ├── controllers
 │   │   ├── middleware
 │   │   ├── routes
-│   │   ├── schemas
-│   │   └── config
+│   │   ├── socket
+│   │   ├── types
+│   │   └── utils
 │   └── docs
 │
 └── docker-compose.yml
@@ -243,12 +272,12 @@ TeamSync
 
 ---
 
-# ⚙ Environment Variables
+# ⚙️ Environment Variables
 
 ## Client
 
 ```env
-NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
 ## Server
@@ -264,20 +293,26 @@ CLIENT_URL=
 
 # 🚀 Installation
 
+Clone the repository
+
 ```bash
 git clone https://github.com/mandanaghzare/teamsync.git
+```
 
+Move into the project
+
+```bash
 cd teamsync
 ```
 
-Install client
+Install client dependencies
 
 ```bash
 cd client
 npm install
 ```
 
-Install server
+Install server dependencies
 
 ```bash
 cd ../server
@@ -286,7 +321,7 @@ npm install
 
 ---
 
-# ▶ Running the Project
+# ▶️ Running the Project
 
 Start PostgreSQL
 
@@ -294,27 +329,36 @@ Start PostgreSQL
 docker compose up -d
 ```
 
-Run Prisma
+Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+Run database migrations
 
 ```bash
 npx prisma migrate dev
 ```
 
-Run Server
+Start the backend
 
 ```bash
 npm run dev
 ```
 
-Run Client
+Start the frontend
 
 ```bash
+cd ../client
 npm run dev
 ```
 
 ---
 
-# 📖 Swagger
+# 📖 API Documentation
+
+Swagger UI
 
 ```
 http://localhost:5000/api/docs
@@ -324,21 +368,20 @@ http://localhost:5000/api/docs
 
 # 🔮 Future Improvements
 
-- Comments on Tasks
+- Real-time Collaboration
+- Comments
 - File Attachments
 - Notifications
 - Activity Timeline
-- Team Invitations via Email
 - Calendar View
 - Labels
-- Task Filters
-- Workspace Settings
+- Advanced Filters
+- Email Invitations
 - Role Management
 - Analytics Dashboard
-- Real-time Collaboration
 
 ---
 
 # 📄 License
 
-This project is intended for educational and portfolio purposes.
+This project was built for educational purposes and portfolio demonstration.
