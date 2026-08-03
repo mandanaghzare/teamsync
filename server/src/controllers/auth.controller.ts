@@ -56,17 +56,19 @@ export const register = async (req: Request, res: Response) => {
       user,
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        message: "Validation failed",
-        errors: error.issues,
-      });
-    }
+  console.error("REGISTER ERROR:", error)
 
-    return res.status(500).json({
-      message: "Internal server error",
-    });
+  if (error instanceof z.ZodError) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: error.issues,
+    })
   }
+
+  return res.status(500).json({
+    message: "Internal server error",
+  })
+}
 };
 
 const loginSchema = z.object({
@@ -120,17 +122,19 @@ export const login = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        message: "Validation failed",
-        errors: error.issues,
-      });
-    }
+  console.error("LOGIN ERROR:", error)
 
-    return res.status(500).json({
-      message: "Internal server error",
-    });
+  if (error instanceof z.ZodError) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: error.issues,
+    })
   }
+
+  return res.status(500).json({
+    message: "Internal server error",
+  })
+}
 };
 
 export const getMe = async (req: AuthenticatedRequest, res: Response) => {
