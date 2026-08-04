@@ -39,3 +39,19 @@ export async function getTeamMembers(
 
   return data
 }
+
+export async function createTeam(name: string) {
+  const { data } = await api.post("/teams", {
+    name,
+  })
+
+  return data
+}
+
+export async function joinTeam(inviteCode: string) {
+  const { data } = await api.post("/teams/join", {
+    inviteCode,
+  })
+
+  return data
+}
