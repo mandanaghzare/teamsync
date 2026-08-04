@@ -9,20 +9,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ProjectsTable from "@/components/projects/ProjectsTable";
 import { getProjects } from "@/lib/project-service";
+import { getMyTeams  } from "@/lib/team-service";
 import type { Project } from "@/types/project";
-
-const TEAM_ID = "cmr1xwgdy0000ggkb7xf376sf";
 
 export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const {
+    data: teams = [],
+    isLoading: isTeamsLoading,
+    isError: isTeamsError,
+  } = useQuery({
+    queryKey: ["teams"],
+    queryFn: getMyTeams ,
+  });
+
+  const teamId = teams[0]?.id ?? null;
+
+  const {
     data: projects = [],
-    isLoading,
-    isError,
+    isLoading: isProjectsLoading,
+    isError: isProjectsError,
   } = useQuery<Project[]>({
-    queryKey: ["projects", TEAM_ID],
-    queryFn: () => getProjects(TEAM_ID),
+    queryKey: ["projects", teamId],
+    queryFn: () => getProjects(teamId!),
+    enabled: Boolean(teamId),
   });
 
   const filteredProjects = useMemo(() => {
@@ -34,10 +45,8 @@ export default function ProjectsPage() {
       return projects;
     }
 
-    return projects.filter((project: Project) => {
-      const name =
-        project.name?.toLowerCase() ?? "";
-
+    return projects.filter((project) => {
+      const name = project.name?.toLowerCase() ?? "";
       const description =
         project.description?.toLowerCase() ?? "";
 
@@ -48,7 +57,7 @@ export default function ProjectsPage() {
     });
   }, [projects, searchQuery]);
 
-  if (isLoading) {
+  if (isTeamsLoading || isProjectsLoading) {
     return (
       <div className="flex h-40 items-center justify-center">
         Loading...
@@ -56,10 +65,18 @@ export default function ProjectsPage() {
     );
   }
 
-  if (isError) {
+  if (isTeamsError || isProjectsError) {
     return (
       <div className="flex h-40 items-center justify-center text-destructive">
         Failed to load projects.
+      </div>
+    );
+  }
+
+  if (!teamId) {
+    return (
+      <div className="flex h-40 items-center justify-center text-muted-foreground">
+        Create or join a team before managing projects.
       </div>
     );
   }
