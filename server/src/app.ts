@@ -21,7 +21,10 @@ app.get("/health", (_req, res) => {
 const allowedOrigins = [
   "http://localhost:3000",
   process.env.CLIENT_URL,
-].filter(Boolean) as string[]
+  process.env.RAILWAY_PUBLIC_DOMAIN
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : undefined,
+].filter(Boolean) as string[];
 
 app.use(
   cors({
