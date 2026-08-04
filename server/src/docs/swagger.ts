@@ -10,7 +10,12 @@ export const swaggerSpec = swaggerJSDoc({
     },
     servers: [
       {
+        url: "https://teamsync-production-b3cc.up.railway.app",
+        description: "Production",
+      },
+      {
         url: "http://localhost:5000",
+        description: "Local",
       },
     ],
     components: {
