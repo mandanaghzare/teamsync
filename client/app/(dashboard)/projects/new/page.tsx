@@ -18,7 +18,7 @@ export default function NewProjectPage() {
     queryFn: getMyTeams,
   });
 
-  const teamId = teams[0]?.id;
+  const teamId = teams[0]?.teamId ?? null;
 
   if (isLoading) {
     return (

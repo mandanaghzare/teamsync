@@ -24,7 +24,7 @@ export default function ProjectsPage() {
     queryFn: getMyTeams ,
   });
 
-  const teamId = teams[0]?.id ?? null;
+  const teamId = teams[0]?.teamId ?? null;
 
   const {
     data: projects = [],
