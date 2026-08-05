@@ -1,190 +1,113 @@
-# 🚀 TeamSync
+# TeamSync
 
-A modern full-stack team collaboration platform built with Next.js, Express, TypeScript, Prisma, PostgreSQL, React Query, and Docker.
+TeamSync is a full-stack project management platform for creating teams, organizing projects, assigning tasks, and tracking progress through dashboards and Kanban boards.
 
----
+[Live Application](https://teamsync-ten-lovat.vercel.app) | [API Documentation](https://teamsync-production-b3cc.up.railway.app/api-docs) | [Portfolio](https://portfolio-nu-blue-74.vercel.app) | [GitHub Repository](https://github.com/mandanaghzare/teamsync)
 
-## 🌐 Live Demo
+## Overview
 
-Frontend:
+TeamSync demonstrates a complete TypeScript-based application architecture with a Next.js frontend, an Express REST API, PostgreSQL persistence, authentication, authorization, validation, responsive UI, and documented endpoints.
 
-Backend (Swagger):
+Users can create or join teams, manage projects, assign work to team members, organize tasks with drag and drop, and monitor deadlines and progress from a centralized dashboard.
 
----
-
-## 📂 GitHub Repository
-
-https://github.com/mandanaghzare/teamsync
-
----
-
-# 📖 Overview
-
-TeamSync is a collaborative project management platform inspired by modern productivity tools like Trello and Jira.
-
-It enables teams to create workspaces, manage projects, organize tasks using a Kanban board, assign tasks to team members, and track overall project progress through an intuitive dashboard.
-
-The project demonstrates a complete full-stack architecture featuring authentication, authorization, REST APIs, database management, Dockerized development, responsive UI, and modern frontend best practices.
-
----
-
-# 📸 Screenshots
+## Screenshots
 
 ### Dashboard
 
-![Dashboard](./client/public/screenshots/dashboard.png)
+![TeamSync dashboard](./client/public/screenshots/dashboard.png)
 
 ### Projects
 
-![Projects](./client/public/screenshots/projects.png)
+![TeamSync projects](./client/public/screenshots/projects.png)
 
 ### Kanban Board
 
-![Kanban](./client/public/screenshots/kanban.png)
+![TeamSync Kanban board](./client/public/screenshots/kanban.png)
 
 ### Tasks
 
-![Tasks](./client/public/screenshots/tasks.png)
+![TeamSync tasks](./client/public/screenshots/tasks.png)
 
----
+## Key Features
 
-# ✨ Features
+### Authentication and authorization
 
-## 🔐 Authentication
+- User registration and secure login
+- JWT-based authentication
+- Protected frontend routes and API endpoints
+- Team membership and owner/member roles
+- Profile management and logout
 
-- User Registration
-- Secure Login
-- JWT Authentication
-- Protected Routes
-- Logout
-- Update User Profile
+### Team and project management
 
----
+- Create teams
+- Join teams with an invite code
+- View team memberships and roles
+- View team members
+- Create, edit, delete, and search projects
+- Restrict project access to team members
+- Track project status and completion progress
 
-## 👥 Team Management
+### Task management
 
-- Create Teams
-- Join Teams using Invite Code
-- Team Member Roles
-- View My Teams
+- Create, edit, delete, search, and assign tasks
+- Set priority, due date, status, project, and assignee
+- View task details
+- View all tasks across accessible projects
+- View tasks assigned to the authenticated user
+- Display tasks in responsive data tables
 
----
+### Kanban workflow
 
-## 📁 Project Management
+- Organize tasks into To Do, In Progress, and Done columns
+- Move tasks between columns with drag and drop
+- Reorder tasks within columns
+- Persist task status and position changes
 
-- Create Projects
-- Edit Projects
-- Delete Projects
-- Project Progress Tracking
-- Project Status
-- Team-based Project Access
+### Dashboard and user experience
 
----
+- Project and task statistics
+- Recent projects
+- Assigned tasks
+- Upcoming deadlines
+- Responsive layouts for desktop, tablet, and mobile
+- Dark and light themes
+- Loading, empty, error, and confirmation states
+- Toast notifications
+- Breadcrumb navigation
 
-## ✅ Task Management
+## Tech Stack
 
-- Create Tasks
-- Edit Tasks
-- Delete Tasks
-- Assign Tasks
-- Due Dates
-- Priority Levels
-- Task Status
-- Task Details Page
-- Global Tasks View
-- My Assigned Tasks
-
----
-
-## 📋 Kanban Board
-
-- Drag & Drop Tasks
-- Move Tasks Between Columns
-- Automatic Order Saving
-- To Do
-- In Progress
-- Review
-- Done
-
----
-
-## 📊 Dashboard
-
-- Dashboard Overview
-- Project Statistics
-- Task Statistics
-- Upcoming Deadlines
-- My Assigned Tasks
-
----
-
-## 🔎 Search & Tables
-
-- Search Projects
-- Search Tasks
-- Global Tasks View
-- Sortable Tables
-- Responsive Data Tables
-
----
-
-## 🎨 User Experience
-
-- Responsive Design
-- Dark / Light Mode
-- Loading States
-- Empty States
-- Error Handling
-- Confirmation Dialogs
-- Toast Notifications
-- Breadcrumb Navigation
-
----
-
-## 📚 API Documentation
-
-- Swagger UI
-- REST API
-- Request Validation
-- Authentication Middleware
-
----
-
-# 🛠 Tech Stack
-
-## Frontend
+### Frontend
 
 - Next.js 16
 - React 19
 - TypeScript
 - Tailwind CSS
-- Axios
 - TanStack React Query
 - TanStack Table
 - React Hook Form
 - Zod
 - DnD Kit
+- Axios
+- Base UI
 - Lucide React
 - Sonner
 - Next Themes
 
----
-
-## Backend
+### Backend
 
 - Node.js
 - Express
 - TypeScript
-- Prisma ORM
 - PostgreSQL
+- Prisma ORM
 - JWT Authentication
 - bcrypt
 - Zod
-- Swagger
+- Swagger / OpenAPI
 
----
-
-## Development Tools
+### Development and deployment
 
 - Docker
 - Docker Compose
@@ -192,196 +115,201 @@ The project demonstrates a complete full-stack architecture featuring authentica
 - GitHub
 - Postman
 - Prisma Studio
-- Swagger UI
+- Vercel
+- Railway
 
----
+## REST API
 
-# 📡 REST API
+Interactive API documentation is available through the [deployed Swagger UI](https://teamsync-production-b3cc.up.railway.app/api-docs).
 
-## Authentication
-
-- POST /api/auth/register
-- POST /api/auth/login
-- GET /api/auth/me
-- PATCH /api/auth/profile
-
----
-
-## Teams
-
-- POST /api/teams
-- POST /api/teams/join
-- GET /api/teams
-
----
-
-## Projects
-
-- POST /api/projects
-- GET /api/projects/team/:teamId
-- GET /api/projects/:projectId
-- PATCH /api/projects/:projectId
-- DELETE /api/projects/:projectId
-
----
-
-## Tasks
-
-- GET /api/tasks
-- GET /api/tasks/project/:projectId
-- GET /api/tasks/:taskId
-- GET /api/tasks/assigned/me
-
-- POST /api/tasks
-
-- PATCH /api/tasks/:taskId
-- PATCH /api/tasks/reorder
-- PATCH /api/tasks/:taskId/assign/:userId
-
-- DELETE /api/tasks/:taskId
-
----
-
-# 📁 Folder Structure
+### Authentication
 
 ```text
-TeamSync
+POST   /api/auth/register
+POST   /api/auth/login
+GET    /api/auth/me
+PATCH  /api/auth/profile
+```
+
+### Teams
+
+```text
+POST   /api/teams
+POST   /api/teams/join
+GET    /api/teams
+GET    /api/teams/:teamId/members
+```
+
+### Projects
+
+```text
+POST   /api/projects
+GET    /api/projects/team/:teamId
+GET    /api/projects/:projectId
+PATCH  /api/projects/:projectId
+DELETE /api/projects/:projectId
+```
+
+### Tasks
+
+```text
+POST   /api/tasks
+GET    /api/tasks
+GET    /api/tasks/project/:projectId
+GET    /api/tasks/assigned/me
+GET    /api/tasks/:taskId
+PATCH  /api/tasks/reorder
+PATCH  /api/tasks/:taskId
+PATCH  /api/tasks/:taskId/assign/:userId
+DELETE /api/tasks/:taskId
+```
+
+## Project Structure
+
+```text
+teamsync/
+├── client/
+│   ├── app/
+│   ├── components/
+│   ├── data/
+│   ├── lib/
+│   ├── providers/
+│   ├── public/
+│   └── types/
 │
-├── client
-│   ├── app
-│   ├── components
-│   ├── lib
-│   ├── providers
-│   ├── public
-│   └── types
-│
-├── server
-│   ├── prisma
-│   ├── src
-│   │   ├── config
-│   │   ├── controllers
-│   │   ├── middleware
-│   │   ├── routes
-│   │   ├── socket
-│   │   ├── types
-│   │   └── utils
-│   └── docs
+├── server/
+│   ├── prisma/
+│   └── src/
+│       ├── config/
+│       ├── controllers/
+│       ├── docs/
+│       ├── generated/
+│       ├── middleware/
+│       ├── routes/
+│       ├── socket/
+│       └── types/
 │
 └── docker-compose.yml
 ```
 
----
+## Local Setup
 
-# ⚙️ Environment Variables
+### 1. Clone the repository
 
-## Client
+```bash
+git clone https://github.com/mandanaghzare/teamsync.git
+cd teamsync
+```
+
+### 2. Configure environment variables
+
+Create `client/.env.local`:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-## Server
+Create `server/.env`:
 
 ```env
-DATABASE_URL=
-JWT_SECRET=
-PORT=
-CLIENT_URL=
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/teamsync
+JWT_SECRET=replace_with_a_secure_secret
+PORT=5000
+CLIENT_URL=http://localhost:3000
 ```
 
----
-
-# 🚀 Installation
-
-Clone the repository
-
-```bash
-git clone https://github.com/mandanaghzare/teamsync.git
-```
-
-Move into the project
-
-```bash
-cd teamsync
-```
-
-Install client dependencies
-
-```bash
-cd client
-npm install
-```
-
-Install server dependencies
-
-```bash
-cd ../server
-npm install
-```
-
----
-
-# ▶️ Running the Project
-
-Start PostgreSQL
+### 3. Start PostgreSQL
 
 ```bash
 docker compose up -d
 ```
 
-Generate Prisma Client
+### 4. Install and start the backend
 
 ```bash
+cd server
+npm install
 npx prisma generate
-```
-
-Run database migrations
-
-```bash
 npx prisma migrate dev
-```
-
-Start the backend
-
-```bash
 npm run dev
 ```
 
-Start the frontend
+### 5. Install and start the frontend
+
+Open another terminal:
 
 ```bash
-cd ../client
+cd client
+npm install
 npm run dev
 ```
 
----
+The frontend runs at:
 
-# 📖 API Documentation
-
-Swagger UI
-
-```
-http://localhost:5000/api/docs
+```text
+http://localhost:3000
 ```
 
----
+The local Swagger documentation is available at:
 
-# 🔮 Future Improvements
+```text
+http://localhost:5000/api-docs
+```
 
-- Real-time Collaboration
-- Comments
-- File Attachments
+## Production Deployment
+
+### Frontend
+
+The Next.js frontend is deployed on Vercel:
+
+```text
+https://teamsync-ten-lovat.vercel.app
+```
+
+Required environment variable:
+
+```env
+NEXT_PUBLIC_API_URL=https://teamsync-production-b3cc.up.railway.app/api
+```
+
+### Backend
+
+The Express API and PostgreSQL database are deployed on Railway:
+
+```text
+https://teamsync-production-b3cc.up.railway.app
+```
+
+Required backend environment variables:
+
+```env
+DATABASE_URL=
+JWT_SECRET=
+CLIENT_URL=https://teamsync-ten-lovat.vercel.app
+```
+
+Production start command:
+
+```bash
+npm run start:prod
+```
+
+## Planned Improvements
+
+- Real-time collaboration
 - Notifications
-- Activity Timeline
-- Calendar View
-- Labels
-- Advanced Filters
-- Email Invitations
-- Role Management
-- Analytics Dashboard
+- Task comments
+- File attachments
+- Calendar view
+- Activity timeline
+- Advanced filters
+- Analytics
+- Email invitations
+- More granular role permissions
 
----
+## Author
 
-# 📄 License
+**Mandana Zare**  
+Frontend / Full-Stack JavaScript Developer
 
-This project was built for educational purposes and portfolio demonstration.
+[Portfolio](https://portfolio-nu-blue-74.vercel.app) | [LinkedIn](https://www.linkedin.com/in/mandana-zare) | [GitHub](https://github.com/mandanaghzare)
